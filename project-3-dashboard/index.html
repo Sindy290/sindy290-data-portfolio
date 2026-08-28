@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coffee Shop Sales — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#17110D;
+    --surface:#221A13;
+    --surface-raised:#2C2117;
+    --border:#3D2E20;
+    --copper:#C17F4A;
+    --copper-bright:#DA9760;
+    --gold:#D9A441;
+    --cream:#F1E8DC;
+    --muted:#9C897A;
+    --muted-dim:#6E5E51;
+    --positive:#8CA37E;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(193,127,74,0.10), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 0%, rgba(217,164,65,0.06), transparent 55%),
+      var(--bg);
+    color:var(--cream);
+    font-family:'Inter',sans-serif;
+    padding:28px 16px 60px;
+    min-height:100vh;
+  }
+  .wrap{max-width:1180px;margin:0 auto;}
+
+  /* ---- Header (receipt header) ---- */
+  .receipt-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:4px;
+    position:relative;
+  }
+  .perf-top, .perf-bottom{
+    height:12px;
+    background-image: radial-gradient(circle at 10px 0, transparent 6px, var(--bg) 6.5px);
+    background-size: 20px 12px;
+    background-repeat:repeat-x;
+    background-color:var(--surface);
+  }
+  .perf-top{ border-top-left-radius:4px; border-top-right-radius:4px; margin-top:-1px;}
+  .perf-bottom{ transform:rotate(180deg); margin-bottom:-1px;}
+
+  header.receipt-card{padding:0 32px 26px;}
+  .head-row{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    flex-wrap:wrap; gap:18px; padding-top:22px;
+  }
+  .brand-eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--gold); margin:0 0 8px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:clamp(28px,4vw,40px);
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+    color:var(--cream);
+  }
+  .sub{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px; color:var(--muted);
+    margin:0;
+  }
+  .store-filter{
+    display:flex; gap:6px; flex-wrap:wrap;
+    background:var(--surface-raised);
+    border:1px solid var(--border);
+    border-radius:999px;
+    padding:5px;
+  }
+  .store-filter button{
+    font-family:'Inter',sans-serif;
+    font-size:13px; font-weight:600;
+    color:var(--muted);
+    background:transparent;
+    border:none;
+    padding:8px 16px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:all .18s ease;
+    white-space:nowrap;
+  }
+  .store-filter button:hover{color:var(--cream);}
+  .store-filter button.active{
+    background:var(--copper);
+    color:#1A120B;
+  }
+
+  /* ---- KPI receipt lines ---- */
+  .kpi-lines{
+    margin-top:22px;
+    border-top:1px dashed var(--border);
+    padding-top:18px;
+  }
+  .kpi-line{
+    display:flex; align-items:baseline; gap:10px;
+    font-family:'IBM Plex Mono',monospace;
+    padding:9px 0;
+  }
+  .kpi-label{
+    font-size:12.5px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--muted); white-space:nowrap;
+  }
+  .kpi-dots{
+    flex:1; border-bottom:1px dotted var(--muted-dim);
+    transform:translateY(-4px);
+    opacity:.5;
+  }
+  .kpi-value{
+    font-size:19px; font-weight:600; color:var(--gold);
+    white-space:nowrap;
+  }
+  .kpi-line.total .kpi-value{
+    font-size:24px; color:var(--copper-bright);
+  }
+  .kpi-line.total .kpi-label{ color:var(--cream); font-weight:600;}
+
+  /* ---- Chart grid ---- */
+  .grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+    margin-top:20px;
+  }
+  @media (max-width:820px){ .grid{grid-template-columns:1fr;} }
+
+  .panel{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:22px 22px 16px;
+  }
+  .panel-head{
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin-bottom:14px;
+  }
+  .panel-title{
+    font-family:'Fraunces',serif;
+    font-size:17px; font-weight:600; color:var(--cream);
+    margin:0;
+  }
+  .panel-note{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px; color:var(--muted-dim);
+  }
+  .chart-holder{ position:relative; height:230px; }
+
+  .callout{
+    margin-top:10px;
+    font-size:12.5px; color:var(--muted);
+    border-left:2px solid var(--gold);
+    padding-left:10px;
+    line-height:1.5;
+  }
+  .callout strong{ color:var(--copper-bright); font-weight:600; }
+
+  footer{
+    margin-top:24px;
+    text-align:center;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--muted-dim);
+    letter-spacing:.03em;
+  }
+  footer p{ margin:4px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="perf-top"></div>
+  <header class="receipt-card">
+    <div class="head-row">
+      <div>
+        <p class="brand-eyebrow">Point-of-sale · transaction report</p>
+        <h1>Coffee Shop Sales</h1>
+        <p class="sub">Jan 01 – Jun 30, 2023 &nbsp;·&nbsp; 3 NYC locations &nbsp;·&nbsp; <span id="txn-count">149,116</span> transactions</p>
+      </div>
+      <div class="store-filter" id="store-filter">
+        <button data-store="All" class="active">All Stores</button>
+        <button data-store="Lower Manhattan">Lower Manhattan</button>
+        <button data-store="Hell's Kitchen">Hell's Kitchen</button>
+        <button data-store="Astoria">Astoria</button>
+      </div>
+    </div>
+
+    <div class="kpi-lines">
+      <div class="kpi-line total">
+        <span class="kpi-label">Total Revenue</span>
+        <span class="kpi-dots"></span>
+        <span class="kpi-value" id="kpi-revenue">$698,812.33</span>
+      </div>
+      <div class="kpi-line">
+        <span class="kpi-label">Transactions</span>
+        <span class="kpi-dots"></span>
+        <span class="kpi-value" id="kpi-transactions">149,116</span>
+      </div>
+      <div class="kpi-line">
+        <span class="kpi-label">Avg. Ticket</span>
+        <span class="kpi-dots"></span>
+        <span class="kpi-value" id="kpi-avg">$4.69</span>
+      </div>
+      <div class="kpi-line">
+        <span class="kpi-label">Units Sold</span>
+        <span class="kpi-dots"></span>
+        <span class="kpi-value" id="kpi-units">214,470</span>
+      </div>
+    </div>
+  </header>
+  <div class="perf-bottom"></div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="panel-head">
+        <p class="panel-title">Revenue by month</p>
+        <span class="panel-note">Jan–Jun</span>
+      </div>
+      <div class="chart-holder"><canvas id="chart-month"></canvas></div>
+      <div class="callout" id="callout-month"><strong>Revenue more than doubled</strong> from February to June — a sustained seasonal climb, not a one-off spike.</div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <p class="panel-title">Revenue by category</p>
+        <span class="panel-note">9 categories</span>
+      </div>
+      <div class="chart-holder"><canvas id="chart-category"></canvas></div>
+      <div class="callout" id="callout-category"><strong>Coffee + Tea</strong> drive roughly two-thirds of all revenue — the core of the menu to protect.</div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <p class="panel-title">Revenue by weekday</p>
+        <span class="panel-note">Mon–Sun</span>
+      </div>
+      <div class="chart-holder"><canvas id="chart-weekday"></canvas></div>
+      <div class="callout" id="callout-weekday">Demand is <strong>remarkably flat across the week</strong> — a commuter business, not a weekend one.</div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <p class="panel-title">Revenue by hour</p>
+        <span class="panel-note">Staffing view</span>
+      </div>
+      <div class="chart-holder"><canvas id="chart-hour"></canvas></div>
+      <div class="callout" id="callout-hour"><strong>8–10am</strong> alone generates over a third of daily revenue — the window to staff hardest.</div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Source: POS transaction log, 149,116 rows · Revenue = quantity × unit price</p>
+    <p>Built as a data analyst portfolio project</p>
+  </footer>
+
+</div>
+
+<script>
+const DASHBOARD_DATA = {"All": {"kpis": {"revenue": 698812.33, "transactions": 149116, "avg": 4.69, "units": 214470}, "byMonth": [{"label": "Jan", "revenue": 81677.74, "transactions": 17314}, {"label": "Feb", "revenue": 76145.19, "transactions": 16359}, {"label": "Mar", "revenue": 98834.68, "transactions": 21229}, {"label": "Apr", "revenue": 118941.08, "transactions": 25335}, {"label": "May", "revenue": 156727.76, "transactions": 33527}, {"label": "Jun", "revenue": 166485.88, "transactions": 35352}], "byCategory": [{"label": "Coffee", "revenue": 269952.45, "transactions": 58416}, {"label": "Tea", "revenue": 196405.95, "transactions": 45449}, {"label": "Bakery", "revenue": 82315.64, "transactions": 22796}, {"label": "Drinking Chocolate", "revenue": 72416.0, "transactions": 11468}, {"label": "Coffee beans", "revenue": 40085.25, "transactions": 1753}, {"label": "Branded", "revenue": 13607.0, "transactions": 747}, {"label": "Loose Tea", "revenue": 11213.6, "transactions": 1210}, {"label": "Flavours", "revenue": 8408.8, "transactions": 6790}, {"label": "Packaged Chocolate", "revenue": 4407.64, "transactions": 487}], "byWeekday": [{"label": "Mon", "revenue": 101677.28, "transactions": 21643}, {"label": "Tue", "revenue": 99455.94, "transactions": 21202}, {"label": "Wed", "revenue": 100313.54, "transactions": 21310}, {"label": "Thu", "revenue": 100767.78, "transactions": 21654}, {"label": "Fri", "revenue": 101373.0, "transactions": 21701}, {"label": "Sat", "revenue": 96894.48, "transactions": 20510}, {"label": "Sun", "revenue": 98330.31, "transactions": 21096}], "byHour": [{"label": "6:00", "revenue": 21900.27, "transactions": 4594}, {"label": "7:00", "revenue": 63526.47, "transactions": 13428}, {"label": "8:00", "revenue": 82699.87, "transactions": 17654}, {"label": "9:00", "revenue": 85169.53, "transactions": 17764}, {"label": "10:00", "revenue": 88673.39, "transactions": 18545}, {"label": "11:00", "revenue": 46319.14, "transactions": 9766}, {"label": "12:00", "revenue": 40192.79, "transactions": 8708}, {"label": "13:00", "revenue": 40367.45, "transactions": 8714}, {"label": "14:00", "revenue": 41304.74, "transactions": 8933}, {"label": "15:00", "revenue": 41733.1, "transactions": 8979}, {"label": "16:00", "revenue": 41122.75, "transactions": 9093}, {"label": "17:00", "revenue": 40134.31, "transactions": 8745}, {"label": "18:00", "revenue": 34286.2, "transactions": 7498}, {"label": "19:00", "revenue": 28446.68, "transactions": 6092}, {"label": "20:00", "revenue": 2935.64, "transactions": 603}]}, "Lower Manhattan": {"kpis": {"revenue": 230057.25, "transactions": 47782, "avg": 4.81, "units": 71742}, "byMonth": [{"label": "Jan", "revenue": 26543.43, "transactions": 5533}, {"label": "Feb", "revenue": 25320.05, "transactions": 5263}, {"label": "Mar", "revenue": 32888.68, "transactions": 6782}, {"label": "Apr", "revenue": 39159.33, "transactions": 8150}, {"label": "May", "revenue": 51700.07, "transactions": 10758}, {"label": "Jun", "revenue": 54445.69, "transactions": 11296}], "byCategory": [{"label": "Coffee", "revenue": 88985.5, "transactions": 18204}, {"label": "Tea", "revenue": 63864.75, "transactions": 13912}, {"label": "Bakery", "revenue": 28328.94, "transactions": 7890}, {"label": "Drinking Chocolate", "revenue": 22494.5, "transactions": 3405}, {"label": "Coffee beans", "revenue": 11230.95, "transactions": 531}, {"label": "Branded", "revenue": 6208.0, "transactions": 349}, {"label": "Flavours", "revenue": 3767.2, "transactions": 2930}, {"label": "Loose Tea", "revenue": 3558.25, "transactions": 381}, {"label": "Packaged Chocolate", "revenue": 1619.16, "transactions": 180}], "byWeekday": [{"label": "Mon", "revenue": 34359.48, "transactions": 7136}, {"label": "Tue", "revenue": 32792.71, "transactions": 6698}, {"label": "Wed", "revenue": 32289.82, "transactions": 6767}, {"label": "Thu", "revenue": 33159.35, "transactions": 6920}, {"label": "Fri", "revenue": 33157.07, "transactions": 6860}, {"label": "Sat", "revenue": 32449.32, "transactions": 6722}, {"label": "Sun", "revenue": 31849.5, "transactions": 6679}], "byHour": [{"label": "6:00", "revenue": 14369.1, "transactions": 2918}, {"label": "7:00", "revenue": 28536.62, "transactions": 5792}, {"label": "8:00", "revenue": 28349.53, "transactions": 5779}, {"label": "9:00", "revenue": 29111.67, "transactions": 5914}, {"label": "10:00", "revenue": 30641.46, "transactions": 6297}, {"label": "11:00", "revenue": 12894.47, "transactions": 2755}, {"label": "12:00", "revenue": 13168.49, "transactions": 2828}, {"label": "13:00", "revenue": 12349.48, "transactions": 2633}, {"label": "14:00", "revenue": 13831.97, "transactions": 2860}, {"label": "15:00", "revenue": 14769.9, "transactions": 3051}, {"label": "16:00", "revenue": 13021.42, "transactions": 2803}, {"label": "17:00", "revenue": 11505.51, "transactions": 2525}, {"label": "18:00", "revenue": 6471.69, "transactions": 1427}, {"label": "19:00", "revenue": 736.67, "transactions": 125}, {"label": "20:00", "revenue": 299.27, "transactions": 75}]}, "Hell's Kitchen": {"kpis": {"revenue": 236511.17, "transactions": 50735, "avg": 4.66, "units": 71737}, "byMonth": [{"label": "Jan", "revenue": 27820.65, "transactions": 5868}, {"label": "Feb", "revenue": 25719.8, "transactions": 5606}, {"label": "Mar", "revenue": 33110.57, "transactions": 7267}, {"label": "Apr", "revenue": 40304.14, "transactions": 8629}, {"label": "May", "revenue": 52598.93, "transactions": 11294}, {"label": "Jun", "revenue": 56957.08, "transactions": 12071}], "byCategory": [{"label": "Coffee", "revenue": 91222.65, "transactions": 20187}, {"label": "Tea", "revenue": 64701.3, "transactions": 15277}, {"label": "Bakery", "revenue": 27386.95, "transactions": 7617}, {"label": "Drinking Chocolate", "revenue": 23586.25, "transactions": 3763}, {"label": "Coffee beans", "revenue": 18635.1, "transactions": 720}, {"label": "Loose Tea", "revenue": 4461.35, "transactions": 485}, {"label": "Flavours", "revenue": 2876.8, "transactions": 2370}, {"label": "Branded", "revenue": 1942.0, "transactions": 119}, {"label": "Packaged Chocolate", "revenue": 1698.77, "transactions": 197}], "byWeekday": [{"label": "Mon", "revenue": 33389.51, "transactions": 7104}, {"label": "Tue", "revenue": 34846.47, "transactions": 7472}, {"label": "Wed", "revenue": 33779.09, "transactions": 7173}, {"label": "Thu", "revenue": 33468.06, "transactions": 7307}, {"label": "Fri", "revenue": 34743.18, "transactions": 7489}, {"label": "Sat", "revenue": 32599.23, "transactions": 6846}, {"label": "Sun", "revenue": 33685.63, "transactions": 7344}], "byHour": [{"label": "6:00", "revenue": 7531.17, "transactions": 1676}, {"label": "7:00", "revenue": 15961.05, "transactions": 3455}, {"label": "8:00", "revenue": 31544.44, "transactions": 6909}, {"label": "9:00", "revenue": 32874.29, "transactions": 6767}, {"label": "10:00", "revenue": 33605.81, "transactions": 6957}, {"label": "11:00", "revenue": 17926.54, "transactions": 3598}, {"label": "12:00", "revenue": 11343.1, "transactions": 2442}, {"label": "13:00", "revenue": 12070.1, "transactions": 2625}, {"label": "14:00", "revenue": 12297.5, "transactions": 2754}, {"label": "15:00", "revenue": 11311.25, "transactions": 2505}, {"label": "16:00", "revenue": 11990.48, "transactions": 2691}, {"label": "17:00", "revenue": 12789.5, "transactions": 2818}, {"label": "18:00", "revenue": 11863.21, "transactions": 2608}, {"label": "19:00", "revenue": 10766.36, "transactions": 2402}, {"label": "20:00", "revenue": 2636.37, "transactions": 528}]}, "Astoria": {"kpis": {"revenue": 232243.91, "transactions": 50599, "avg": 4.59, "units": 70991}, "byMonth": [{"label": "Jan", "revenue": 27313.66, "transactions": 5913}, {"label": "Feb", "revenue": 25105.34, "transactions": 5490}, {"label": "Mar", "revenue": 32835.43, "transactions": 7180}, {"label": "Apr", "revenue": 39477.61, "transactions": 8556}, {"label": "May", "revenue": 52428.76, "transactions": 11475}, {"label": "Jun", "revenue": 55083.11, "transactions": 11985}], "byCategory": [{"label": "Coffee", "revenue": 89744.3, "transactions": 20025}, {"label": "Tea", "revenue": 67839.9, "transactions": 16260}, {"label": "Bakery", "revenue": 26599.75, "transactions": 7289}, {"label": "Drinking Chocolate", "revenue": 26335.25, "transactions": 4300}, {"label": "Coffee beans", "revenue": 10219.2, "transactions": 502}, {"label": "Branded", "revenue": 5457.0, "transactions": 279}, {"label": "Loose Tea", "revenue": 3194.0, "transactions": 344}, {"label": "Flavours", "revenue": 1764.8, "transactions": 1490}, {"label": "Packaged Chocolate", "revenue": 1089.71, "transactions": 110}], "byWeekday": [{"label": "Mon", "revenue": 33928.29, "transactions": 7403}, {"label": "Tue", "revenue": 31816.76, "transactions": 7032}, {"label": "Wed", "revenue": 34244.63, "transactions": 7370}, {"label": "Thu", "revenue": 34140.37, "transactions": 7427}, {"label": "Fri", "revenue": 33472.75, "transactions": 7352}, {"label": "Sat", "revenue": 31845.93, "transactions": 6942}, {"label": "Sun", "revenue": 32795.18, "transactions": 7073}], "byHour": [{"label": "6:00", "revenue": 0.0, "transactions": 0}, {"label": "7:00", "revenue": 19028.8, "transactions": 4181}, {"label": "8:00", "revenue": 22805.9, "transactions": 4966}, {"label": "9:00", "revenue": 23183.57, "transactions": 5083}, {"label": "10:00", "revenue": 24426.12, "transactions": 5291}, {"label": "11:00", "revenue": 15498.13, "transactions": 3413}, {"label": "12:00", "revenue": 15681.2, "transactions": 3438}, {"label": "13:00", "revenue": 15947.87, "transactions": 3456}, {"label": "14:00", "revenue": 15175.27, "transactions": 3319}, {"label": "15:00", "revenue": 15651.95, "transactions": 3423}, {"label": "16:00", "revenue": 16110.85, "transactions": 3599}, {"label": "17:00", "revenue": 15839.3, "transactions": 3402}, {"label": "18:00", "revenue": 15951.3, "transactions": 3463}, {"label": "19:00", "revenue": 16943.65, "transactions": 3565}, {"label": "20:00", "revenue": 0.0, "transactions": 0}]}};
+</script>
+<script>
+(function(){
+  const fmtUSD = n => '$' + n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  const fmtInt = n => n.toLocaleString('en-US');
+
+  const palette = {
+    copper:'#C17F4A', copperBright:'#DA9760', gold:'#D9A441',
+    cream:'#F1E8DC', muted:'#9C897A', grid:'rgba(157,137,122,0.14)',
+    surface:'#221A13'
+  };
+
+  Chart.defaults.font.family = "'Inter', sans-serif";
+  Chart.defaults.color = palette.muted;
+
+  function makeGradient(ctx, area, c1, c2){
+    const g = ctx.createLinearGradient(0, area.top, 0, area.bottom);
+    g.addColorStop(0, c1); g.addColorStop(1, c2);
+    return g;
+  }
+
+  const commonScales = {
+    x:{ grid:{display:false}, ticks:{font:{size:10.5, family:"'IBM Plex Mono', monospace"}} },
+    y:{ grid:{color:palette.grid}, border:{display:false}, ticks:{font:{size:10.5, family:"'IBM Plex Mono', monospace"}, callback:v=>'$'+(v>=1000?(v/1000)+'k':v)} }
+  };
+
+  const tooltipBase = {
+    backgroundColor:'#2C2117', borderColor:'#3D2E20', borderWidth:1,
+    titleColor:'#F1E8DC', bodyColor:'#D9A441',
+    titleFont:{family:"'IBM Plex Mono', monospace", size:11},
+    bodyFont:{family:"'IBM Plex Mono', monospace", size:12, weight:'600'},
+    padding:10, cornerRadius:6, displayColors:false,
+    callbacks:{ label: ctx => fmtUSD(ctx.parsed.y) }
+  };
+
+  let monthChart, categoryChart, weekdayChart, hourChart;
+
+  function buildCharts(d){
+    const monthLabels = d.byMonth.map(x=>x.label);
+    const monthData = d.byMonth.map(x=>x.revenue);
+    const ctxM = document.getElementById('chart-month').getContext('2d');
+    monthChart = new Chart(ctxM, {
+      type:'line',
+      data:{ labels:monthLabels, datasets:[{
+        data:monthData, borderColor:palette.gold, borderWidth:2.5,
+        pointBackgroundColor:palette.gold, pointRadius:3.5, pointHoverRadius:5,
+        tension:.35, fill:true,
+        backgroundColor: (ctx)=>{
+          const {chartArea} = ctx.chart; if(!chartArea) return 'transparent';
+          return makeGradient(ctx.chart.ctx, chartArea, 'rgba(217,164,65,0.28)', 'rgba(217,164,65,0.0)');
+        }
+      }]},
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:tooltipBase },
+        scales: commonScales }
+    });
+
+    const catSorted = [...d.byCategory];
+    const ctxC = document.getElementById('chart-category').getContext('2d');
+    categoryChart = new Chart(ctxC, {
+      type:'bar',
+      data:{ labels:catSorted.map(x=>x.label), datasets:[{
+        data:catSorted.map(x=>x.revenue),
+        backgroundColor:palette.copper, borderRadius:4, maxBarThickness:16
+      }]},
+      options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:tooltipBase },
+        scales:{
+          x:{ grid:{color:palette.grid}, border:{display:false}, ticks:{font:{size:10, family:"'IBM Plex Mono', monospace"}, callback:v=>'$'+(v>=1000?(v/1000)+'k':v)} },
+          y:{ grid:{display:false}, ticks:{font:{size:10.5}} }
+        } }
+    });
+
+    const ctxW = document.getElementById('chart-weekday').getContext('2d');
+    weekdayChart = new Chart(ctxW, {
+      type:'bar',
+      data:{ labels:d.byWeekday.map(x=>x.label), datasets:[{
+        data:d.byWeekday.map(x=>x.revenue),
+        backgroundColor:palette.copperBright, borderRadius:4, maxBarThickness:26
+      }]},
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:tooltipBase },
+        scales: commonScales }
+    });
+
+    const ctxH = document.getElementById('chart-hour').getContext('2d');
+    hourChart = new Chart(ctxH, {
+      type:'line',
+      data:{ labels:d.byHour.map(x=>x.label), datasets:[{
+        data:d.byHour.map(x=>x.revenue),
+        borderColor:palette.gold, borderWidth:2.5, pointRadius:0,
+        tension:.3, fill:true,
+        backgroundColor:(ctx)=>{
+          const {chartArea} = ctx.chart; if(!chartArea) return 'transparent';
+          return makeGradient(ctx.chart.ctx, chartArea, 'rgba(217,164,65,0.28)', 'rgba(217,164,65,0.0)');
+        }
+      }]},
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:tooltipBase },
+        scales:{ x:{ grid:{display:false}, ticks:{font:{size:9.5, family:"'IBM Plex Mono', monospace"}, maxRotation:0, autoSkip:true, maxTicksLimit:8} },
+                 y: commonScales.y } }
+    });
+  }
+
+  function updateCharts(d){
+    monthChart.data.datasets[0].data = d.byMonth.map(x=>x.revenue);
+    monthChart.update();
+    const catSorted = [...d.byCategory];
+    categoryChart.data.labels = catSorted.map(x=>x.label);
+    categoryChart.data.datasets[0].data = catSorted.map(x=>x.revenue);
+    categoryChart.update();
+    weekdayChart.data.datasets[0].data = d.byWeekday.map(x=>x.revenue);
+    weekdayChart.update();
+    hourChart.data.datasets[0].data = d.byHour.map(x=>x.revenue);
+    hourChart.update();
+  }
+
+  function updateKPIs(d){
+    document.getElementById('kpi-revenue').textContent = fmtUSD(d.kpis.revenue);
+    document.getElementById('kpi-transactions').textContent = fmtInt(d.kpis.transactions);
+    document.getElementById('kpi-avg').textContent = fmtUSD(d.kpis.avg);
+    document.getElementById('kpi-units').textContent = fmtInt(d.kpis.units);
+    document.getElementById('txn-count').textContent = fmtInt(d.kpis.transactions);
+  }
+
+  function updateCallouts(store){
+    const isAll = store === 'All';
+    document.getElementById('callout-month').innerHTML = isAll
+      ? '<strong>Revenue more than doubled</strong> from February to June — a sustained seasonal climb, not a one-off spike.'
+      : `Monthly trend for <strong>${store}</strong>.`;
+    document.getElementById('callout-hour').innerHTML = isAll
+      ? '<strong>8–10am</strong> alone generates over a third of daily revenue — the window to staff hardest.'
+      : `Hourly demand pattern for <strong>${store}</strong>.`;
+  }
+
+  // init
+  const initial = DASHBOARD_DATA['All'];
+  buildCharts(initial);
+  updateKPIs(initial);
+
+  document.querySelectorAll('.store-filter button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.store-filter button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const store = btn.getAttribute('data-store');
+      const d = DASHBOARD_DATA[store];
+      updateKPIs(d);
+      updateCharts(d);
+      updateCallouts(store);
+    });
+  });
+})();
+</script>
+</body>
+</html>
