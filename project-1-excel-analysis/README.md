@@ -82,6 +82,22 @@ I created charts to make the results easier to interpret and to highlight the mo
 
 ---
 
+## Analysis Preview
+
+### Sales Summary
+
+The summary view presents the core KPIs and supporting sales breakdowns used in the analysis.
+
+![Coffee Shop Sales Summary](./sales-summary.png)
+
+### Sales Dashboard
+
+The dashboard visualizes store performance, monthly growth, product-category performance, weekday patterns, and hourly revenue trends.
+
+![Coffee Shop Sales Dashboard](./sales-dashboard.png)
+
+---
+
 ## Key Findings
 
 ### Store Performance
