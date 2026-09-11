@@ -147,6 +147,9 @@ A business-focused overview of the analysis, key findings, and recommendations.
 **Summary**  
 KPI calculations, summary tables, and charts covering store, product, monthly, weekday, and hourly performance.
 
+**Data Quality Checks**  
+A dedicated worksheet used to review the dataset for completeness and consistency before analysis.
+
 **Raw Data**  
 The transaction-level dataset together with the derived fields used during analysis.
 
@@ -169,6 +172,8 @@ This project demonstrates my ability to:
 ## Project File
 
 [Download / View the Excel Workbook](./Coffee%20Shop%20Sales%20Analysis.xlsx)
+
+The workbook contains the full transaction-level analysis and live Excel formulas. The README provides a quick recruiter-friendly overview of the project, while the workbook can be opened for a deeper review of the underlying calculations and analysis.
 
 ---
 
