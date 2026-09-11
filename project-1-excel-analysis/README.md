@@ -161,4 +161,3 @@ This project demonstrates my ability to:
 The next stage of this portfolio expands the analysis using **SQL and Python** for deeper data exploration and querying.
 
 [View Project 2 — SQL & Python Analysis](../project-2-sql-python/)
-- Project 4: end-to-end business case study
