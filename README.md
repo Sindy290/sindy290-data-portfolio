@@ -1,5 +1,4 @@
 # Sindy Jwili | Junior Data Analyst Portfolio
-🌐 **[View My Live Data Analyst Portfolio](https://sindy290.github.io/sindy290-data-portfolio/)**
 
 Welcome to my data analytics portfolio.
 
