@@ -179,10 +179,27 @@ Based on the analysis:
 | File | Purpose |
 |---|---|
 | [`schema.sql`](./schema.sql) | Defines the relational database tables, keys, and design decisions |
-| [`build_db.py`](./build_db.py) | Builds the normalized SQLite database from the source data |
+| [`build_db.py`](./build_db.py) | Builds the normalized SQLite database from the original source workbook |
 | [`queries.sql`](./queries.sql) | Contains the 12 documented SQL analysis queries |
 | [`coffee_sales_sql_analysis.ipynb`](./coffee_sales_sql_analysis.ipynb) | Runs SQL through pandas, visualizes results, and documents findings |
-| `coffee_shop.db` | SQLite database used for the analysis |
+| `coffee_shop.db` | Ready-to-use SQLite database used for the analysis |
+
+---
+
+## Reproducing the Analysis
+
+The repository includes the completed `coffee_shop.db`, so the SQL queries and Jupyter notebook can be explored without rebuilding the database from the original Excel source.
+
+The original raw workbook used by `build_db.py` is not duplicated in this project folder. The build script is included to demonstrate the data preparation and database-building workflow.
+
+To explore the existing database and notebook:
+
+```bash
+pip install pandas matplotlib jupyter
+jupyter notebook coffee_sales_sql_analysis.ipynb
+```
+
+The SQL queries can also be reviewed directly in [`queries.sql`](./queries.sql).
 
 ---
 
@@ -199,17 +216,6 @@ This project demonstrates my ability to:
 - Analyze trends across time, stores, products, and operating hours
 - Translate technical analysis into business recommendations
 - Build a reproducible analysis workflow
-
----
-
-## How to Reproduce
-
-```bash
-pip install pandas openpyxl
-python build_db.py "Coffee Shop Sales.xlsx"
-sqlite3 coffee_shop.db < queries.sql
-jupyter notebook coffee_sales_sql_analysis.ipynb
-```
 
 ---
 
