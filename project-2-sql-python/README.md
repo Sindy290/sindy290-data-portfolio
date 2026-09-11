@@ -1,73 +1,198 @@
-# Coffee Shop Sales — SQL + Python Analysis
+# Coffee Shop Sales Analysis | SQL + Python
 
-Project 2 in a data analyst portfolio. Builds on the flat-file analysis in
-Project 1 (Excel) by properly normalizing the same transaction data into a
-relational database, then using SQL — joins, CTEs, window functions,
-subqueries — to answer deeper business questions than a spreadsheet
-comfortably can.
+## Project Overview
 
-## Business question
-How should the business staff its stores, prioritize its menu, and plan for
-the rest of the year, based on six months of transaction history across
-3 NYC locations?
+This project builds on my Excel sales analysis by taking the same coffee shop transaction data into a relational database and using **SQL and Python** for deeper analysis.
 
-## What's in this folder
+The dataset contains six months of transaction history across three New York City coffee shop locations. I normalized the data into a SQLite database, wrote SQL queries to investigate business performance, and used Python with pandas to run and explore the query results.
 
-| File | What it is |
+The goal was to move beyond spreadsheet-based reporting and demonstrate how SQL and Python can be used to structure, query, analyze, and communicate business data.
+
+---
+
+## Business Question
+
+**How should the business staff its stores, prioritize its menu, and plan for future performance based on six months of transaction history across three locations?**
+
+The analysis explored questions including:
+
+- How does revenue compare across stores?
+- How is revenue changing month over month?
+- Which products perform consistently across locations?
+- Are there location-specific product preferences?
+- What hours generate the highest revenue?
+- Are there data-quality issues that could affect future pricing or margin analysis?
+
+---
+
+## Tools & Technologies
+
+- SQL
+- SQLite
+- Python
+- pandas
+- Jupyter Notebook
+- Relational database design
+- Data visualization
+
+---
+
+## Database Design
+
+The original flat transaction data was transformed into a relational structure containing one fact table and two dimension tables:
+
+```text
+dim_stores
+├── store_id (PK)
+└── store_location
+
+dim_products
+├── product_id (PK)
+├── product_category
+├── product_type
+└── product_detail
+
+fact_transactions
+├── transaction_id (PK)
+├── transaction_date
+├── transaction_time
+├── store_id (FK)
+├── product_id (FK)
+├── transaction_qty
+├── unit_price
+└── revenue
+```
+
+### Pricing Design Decision
+
+`unit_price` was kept on the transaction fact table rather than the product dimension.
+
+During normalization, **15 of 80 products were found at more than one historical unit price**. Treating price as a fixed product attribute could therefore hide legitimate price variation and potentially distort later pricing or margin analysis.
+
+This issue was retained and flagged for business validation rather than silently forcing one price per product.
+
+---
+
+## SQL Analysis
+
+The project contains **12 documented SQL queries**, progressing from core aggregations to more advanced analysis.
+
+SQL techniques demonstrated include:
+
+- Joins across fact and dimension tables
+- Common Table Expressions (CTEs)
+- Window functions
+- `LAG()` for period-over-period comparisons
+- `RANK()` for product performance
+- Running totals
+- 7-day moving averages
+- Correlated subqueries
+- Subqueries in `FROM`
+- `HAVING`
+- `CASE`
+- SQLite date functions using `strftime()`
+
+The complete queries are available in [`queries.sql`](./queries.sql).
+
+---
+
+## Python Analysis
+
+Python was used alongside SQL to make the analysis reproducible and easier to explore.
+
+The Jupyter notebook uses **pandas** to execute SQL queries against the SQLite database, inspect the resulting data, create visualizations, and document the business findings.
+
+[View the SQL + Python notebook](./coffee_sales_sql_analysis.ipynb)
+
+---
+
+## Key Findings
+
+### Store Performance
+
+Revenue was distributed relatively evenly across all three stores, with performance within approximately **1.5 percentage points** across locations.
+
+This suggests that overall performance is not dependent on one dominant store.
+
+### Revenue Growth
+
+The data showed consecutive months of strong revenue growth through the middle of the six-month period, with growth easing in June.
+
+This trend would be worth validating against additional months of data before using it for longer-term forecasting.
+
+### Product Performance
+
+Two products ranked among the **top three products at every store**, suggesting they are strong candidates for company-wide promotion or menu visibility.
+
+The analysis also identified a local top-selling product at the Hell's Kitchen location that was not shared by the other stores, highlighting the value of store-level product analysis.
+
+### Peak Sales Hours
+
+Approximately **36.7% of daily revenue occurred between 8:00 AM and 10:00 AM**, despite this representing only three of roughly fifteen operating hours.
+
+This makes the morning period one of the clearest opportunities for staffing and operational planning.
+
+### Data Quality
+
+**15 of 80 products showed multiple historical unit prices.**
+
+This was flagged as a data-quality and business-validation issue before performing deeper pricing or margin analysis.
+
+---
+
+## Business Recommendations
+
+Based on the analysis:
+
+- Prioritize staffing capacity during the 8–10 AM peak revenue period.
+- Maintain strong availability and visibility for products that consistently rank highly across locations.
+- Use store-level product performance when planning local promotions rather than assuming every location has identical customer preferences.
+- Validate historical price variation before building pricing, margin, or profitability analysis.
+- Continue collecting additional months of data before treating the observed revenue-growth pattern as a long-term trend.
+
+---
+
+## Project Files
+
+| File | Purpose |
 |---|---|
-| `schema.sql` | Database DDL — table definitions, keys, and a documented design decision |
-| `build_db.py` | Reproducible script: raw Excel export → normalized SQLite database |
-| `coffee_shop.db` | The built database (star schema: 1 fact table, 2 dimension tables) |
-| `queries.sql` | 12 documented SQL queries, from basic aggregation to window functions |
-| `coffee_sales_sql_analysis.ipynb` | Notebook: runs the queries via `pandas.read_sql`, charts the results, and narrates the findings |
+| [`schema.sql`](./schema.sql) | Defines the relational database tables, keys, and design decisions |
+| [`build_db.py`](./build_db.py) | Builds the normalized SQLite database from the source data |
+| [`queries.sql`](./queries.sql) | Contains the 12 documented SQL analysis queries |
+| [`coffee_sales_sql_analysis.ipynb`](./coffee_sales_sql_analysis.ipynb) | Runs SQL through pandas, visualizes results, and documents findings |
+| `coffee_shop.db` | SQLite database used for the analysis |
 
-## Database design
+---
 
-```
-dim_stores (store_id PK, store_location)
-dim_products (product_id PK, product_category, product_type, product_detail)
-fact_transactions (transaction_id PK, transaction_date, transaction_time,
-                    store_id FK, product_id FK, transaction_qty,
-                    unit_price, revenue)
-```
+## Skills Demonstrated
 
-`unit_price` is stored on the fact table, not on `dim_products`. During
-normalization, 15 of 80 products turned out to have been recorded at more
-than one unit price across the 6-month period — treating price as a stable
-product attribute would have silently hidden that. See the comment at the
-top of `schema.sql` and Section 6 of the notebook for the full finding.
+This project demonstrates my ability to:
 
-## SQL techniques demonstrated (`queries.sql`)
+- Transform flat data into a relational database structure
+- Design fact and dimension tables
+- Write analytical SQL queries
+- Use joins, CTEs, subqueries, and window functions
+- Query databases from Python using pandas
+- Investigate data-quality issues instead of ignoring them
+- Analyze trends across time, stores, products, and operating hours
+- Translate technical analysis into business recommendations
+- Build a reproducible analysis workflow
 
-- Joins across fact/dimension tables
-- CTEs (`WITH`)
-- Window functions: `LAG`, `RANK`, running totals, 7-day moving average
-- Correlated subqueries and subqueries in `FROM`
-- `HAVING`, `CASE`, date functions (`strftime`)
+---
 
-## Key findings
-
-1. Revenue is evenly split across all three stores (within 1.5 points) —
-   performance isn't a single-location problem.
-2. Four consecutive months of double-digit revenue growth (Mar–May),
-   easing in June — a real trend worth validating against Q3 data.
-3. Two products rank top-3 at every store (safe to feature company-wide),
-   but Hell's Kitchen has a genuine local top-seller no other store shares.
-4. 36.7% of daily revenue happens in just 3 of ~15 operating hours
-   (8–10am) — the clearest staffing lever in the data.
-5. 15 of 80 products show inconsistent historical pricing — flagged as a
-   data-quality issue to confirm with the business before any
-   pricing/margin analysis is built on top of it.
-
-## How to reproduce
+## How to Reproduce
 
 ```bash
 pip install pandas openpyxl
 python build_db.py "Coffee Shop Sales.xlsx"
-sqlite3 coffee_shop.db < queries.sql   # or open coffee_shop.db in any SQLite client
+sqlite3 coffee_shop.db < queries.sql
 jupyter notebook coffee_sales_sql_analysis.ipynb
 ```
 
-## Related projects
-- Project 1: Excel pivot-table analysis of the same dataset
-- Project 3: Interactive HTML sales dashboard
+---
+
+## Related Projects
+
+[← Project 1 — Excel Sales Analysis](../project-1-excel-analysis/)
+
+[Project 3 — Interactive Dashboard →](../project-3-dashboard/)
