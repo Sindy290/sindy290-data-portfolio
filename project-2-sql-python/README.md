@@ -114,9 +114,15 @@ This analysis uses a CTE, joins, aggregation, and `RANK() OVER (PARTITION BY ...
 
 ![Top 3 products per store SQL analysis](./sql-top-products.png)
 
-### Python Visualization: Revenue by Hour
+### Python: Querying and Visualization
 
-The notebook combines SQL query results with Python and Matplotlib to visualize hourly revenue. The analysis shows that **36.7% of daily revenue occurs between 8:00 AM and 10:00 AM**, making this the most important staffing window in the dataset.
+Python is used to execute SQL with `pandas.read_sql()`, calculate the peak-period revenue share, and create the hourly revenue visualization with Matplotlib.
+
+![Python revenue analysis code](./python-analysis.png)
+
+### Business Visualization: Revenue by Hour
+
+The resulting chart shows that **36.7% of daily revenue occurs between 8:00 AM and 10:00 AM**, making this the most important staffing window in the dataset.
 
 ![Revenue by hour Python analysis](./revenue-by-hour.png)
 
