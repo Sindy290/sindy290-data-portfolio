@@ -1,66 +1,82 @@
-# Coffee Shop Sales — Interactive Dashboard
+# Coffee Shop Sales Dashboard | Power BI
 
-Project 3 in a data analyst portfolio. A single-page, interactive sales
-dashboard built on the same 149,116-transaction dataset used in Projects 1
-(Excel) and 2 (SQL + Python) — this project's job is presentation and
-interactivity, not new analysis.
+## Project Overview
 
-**Live demo:** deploy `index.html` (see below) or open it directly in any browser — no build step, no server required.
+This project presents an interactive Power BI dashboard built from 149,116 coffee shop transactions across three New York City locations. The goal was to turn detailed sales data into a clear management dashboard that highlights revenue trends, product performance, store activity, and peak trading periods.
 
-## Business question
-Can a store manager or executive answer "how are we doing, and where"
-in under 30 seconds, without opening a spreadsheet?
+This project focuses on dashboard design, DAX measures, interactive filtering, and communicating business insights visually.
 
-## What it does
-- Click a store filter (**All / Lower Manhattan / Hell's Kitchen / Astoria**)
-  and every KPI and chart updates instantly from pre-aggregated data —
-  no server, no API calls, everything runs client-side.
-- Four charts: monthly revenue trend, revenue by category, revenue by
-  weekday, and revenue by hour (the staffing view).
-- KPI strip: total revenue, transactions, average ticket, units sold.
+## Business Question
 
-## Design decisions
-- **Why not Power BI/Tableau:** this was originally scoped as a Power BI
-  dashboard, but was rebuilt as a standalone web dashboard so it can be
-  hosted and linked directly (GitHub Pages, Netlify) rather than requiring
-  a viewer to have Power BI Desktop installed. If a specific job posting
-  calls for Power BI specifically, the same aggregate tables in
-  `dashboard_data.json`-equivalent form (embedded in `index.html`) can be
-  rebuilt there quickly — the queries and findings are already worked out.
-- **Visual design is grounded in the data's own origin:** this is
-  point-of-sale receipt data, so the KPI strip is styled as a receipt
-  ("line items" with dotted leaders, a perforated-edge header/footer),
-  and figures use a monospace typeface — a deliberate choice tied to the
-  subject, not a generic dashboard template.
-- **Data is pre-aggregated, not the raw 149K rows:** four small lookup
-  tables (by store × month / category / weekday / hour) are embedded
-  directly in the HTML as JSON (~10KB total), so the page loads instantly
-  and the store filter has no latency. The full transaction-level data
-  lives in Projects 1 and 2 for anyone who wants to audit the source.
+How can a store manager quickly understand overall sales performance, identify key revenue drivers, and recognize the busiest trading periods across locations?
 
-## Tech stack
-Plain HTML/CSS/JS + [Chart.js](https://www.chartjs.org/) (via CDN). No
-framework, no build tools — intentionally, so it's viewable by opening
-the file directly and easy for anyone to read the source.
+## Dashboard Preview
 
-## Key findings surfaced in the dashboard
-- Store revenue is balanced (32.9%–33.9% split) — no location is
-  under- or over-performing.
-- Revenue more than doubled from February to June.
-- Coffee + Tea drive roughly two-thirds of all revenue.
-- 8–10am generates over a third of daily revenue — the clearest
-  staffing signal in the data.
-- Weekday revenue is flat — this is a commuter business, not a
-  weekend one.
+![Coffee Shop Sales Power BI Dashboard](./power-bi-dashboard.png)
 
-## How to deploy
-**GitHub Pages** (recommended — free, gives you a live link for your resume):
-1. Push this folder to a GitHub repo.
-2. Repo → Settings → Pages → set source to the branch/folder containing `index.html`.
-3. Your live dashboard will be at `https://<username>.github.io/<repo>/`.
+## Key KPIs
 
-**Or just open `index.html` directly in any browser** — it's fully self-contained.
+- Total Revenue: **$698.81K**
+- Total Transactions: **149K**
+- Units Sold: **214K**
+- Average Transaction Value: **$4.69**
 
-## Related projects
-- Project 1: Excel pivot-table analysis of the same dataset
-- Project 2: Normalized SQL database + Python analysis notebook
+## Dashboard Features
+
+- Interactive **Store Location** slicer
+- Monthly revenue trend
+- Revenue by hour of day
+- Revenue by product category
+- Top 5 products by revenue
+- KPI cards for revenue, transactions, units sold, and average transaction value
+- Business insight callout highlighting the morning peak period
+
+## DAX Measure
+
+A custom DAX measure was created for Average Transaction Value:
+
+```DAX
+Average Transaction Value =
+DIVIDE(
+    [Total Sales],
+    [Total Transactions],
+    0
+)
+```
+
+## Key Insights
+
+- Revenue increased strongly from March through June, with June producing the highest monthly revenue.
+- Coffee is the leading product category by revenue, followed by Tea.
+- The **8–10 AM** period is the most important sales window and generates approximately **36.7% of daily revenue**, making it a key staffing period.
+- Revenue is well distributed across the three store locations, allowing managers to compare performance using the interactive slicer.
+- A small group of products contributes a significant share of product-level revenue.
+
+## Business Recommendations
+
+- Prioritize staffing and product availability during the 8–10 AM peak period.
+- Maintain strong inventory levels for top-performing Coffee and Tea products.
+- Use the Store Location slicer to compare local performance before planning store-specific promotions.
+- Continue monitoring monthly revenue trends to determine whether the growth observed through June is sustained over a longer period.
+
+## Skills Demonstrated
+
+- Power BI dashboard development
+- DAX measures
+- KPI design
+- Interactive slicers and cross-filtering
+- Data visualization
+- Business insight communication
+- Dashboard layout and visual hierarchy
+- Data-driven recommendations
+
+## Project Files
+
+- [`Coffee Shop Sales Power BI Dashboard.pbix`](./Coffee%20Shop%20Sales%20Power%20BI%20Dashboard.pbix) — Power BI project file
+- [`power-bi-dashboard.png`](./power-bi-dashboard.png) — dashboard preview image
+
+## Related Projects
+
+- [Project 1 — Excel Sales Analysis](../project-1-excel-analysis/)
+- [Project 2 — SQL + Python Analysis](../project-2-sql-python/)
+- [Project 4 — Business Case Study](../project-4-case-study/)
