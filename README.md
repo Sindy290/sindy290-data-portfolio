@@ -57,11 +57,11 @@ The project focuses on querying, transforming, and analysing transaction data to
 
 ---
 
-### 3. Sales Dashboard
+### 3. Coffee Shop Sales Dashboard | Power BI
 
-**Tools:** Power BI / Data Visualization
+**Tools:** Power BI, DAX, Data Visualization
 
-Developed an interactive dashboard to turn the sales analysis into an easy-to-understand view of business performance.
+Developed an interactive Power BI dashboard to turn the sales analysis into an easy-to-understand view of business performance.
 
 The dashboard focuses on important KPIs and allows users to explore sales performance across products, locations, and time periods.
 
@@ -73,7 +73,7 @@ The dashboard focuses on important KPIs and allows users to explore sales perfor
 - Sales trends
 - Interactive filtering
 
-[View Dashboard Project](./project-3-dashboard/)
+[View Power BI Dashboard Project](./project-3-dashboard/)
 
 ---
 
@@ -91,7 +91,7 @@ The purpose of this project is to demonstrate that data analysis is not only abo
 
 Rather than creating unrelated projects for each tool, I chose to analyse the same dataset using different analytical approaches.
 
-I started with Excel to understand and validate the data, expanded the analysis using SQL and Python, visualized the findings through a dashboard, and translated the results into business recommendations.
+I started with Excel to understand and validate the data, expanded the analysis using SQL and Python, visualized the findings through a Power BI dashboard, and translated the results into business recommendations.
 
 This approach allowed me to practice the complete analytical process:
 
@@ -109,12 +109,9 @@ I am particularly interested in roles involving data analysis, reporting, busine
 
 ## Contact
 
-**LinkedIn:** Add your LinkedIn URL here  
+**LinkedIn:** [Sindy Jwili](https://www.linkedin.com/in/sindy-jwili-130b45238)  
 **Portfolio:** https://sindy290.github.io/sindy290-data-portfolio/
 
 ---
 
-*Thank you for taking the time to view my portfolio.*.html` with a couple of real
-  sentences about your background and what you're looking for.
-- Replace the placeholder email link in the footer of `index.html`
-  with your real contact info (or remove it).
+*Thank you for taking the time to view my portfolio.*
